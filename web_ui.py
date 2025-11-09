@@ -212,33 +212,55 @@ def transcribe_audio(
 def create_ui():
     """Gradio arayüzü oluştur."""
 
+    # Dark mode için custom CSS
+    custom_css = """
+    .dark {
+        --body-text-color: #e0e0e0;
+        --block-title-text-color: #ffffff;
+    }
+    footer {visibility: hidden}
+    """
+
     with gr.Blocks(
         title="Whisper Transkripsiyon",
         theme=gr.themes.Soft(),
+        css=custom_css
     ) as demo:
 
         # GPU bilgisini al
         gpu_info = get_gpu_info()
 
         gr.Markdown(f"""
-        # 🎙️ Whisper Ses-Metin Dönüştürücü
+        # 🎙️ Whisper Ses-Metin Dönüştürücü | Speech-to-Text Converter
 
-        Ses dosyalarınızı metne dönüştürün. MP3, WAV, M4A, FLAC formatları desteklenir.
+        Ses dosyalarınızı metne dönüştürün. MP3, WAV, M4A, FLAC formatları desteklenir.  
+        Convert your audio files to text. MP3, WAV, M4A, FLAC formats supported.
 
-        **💻 Sistem:** {gpu_info}
+        **💻 Sistem | System:** {gpu_info}
+        """)
+        
+        # Nasıl Kullanılır - En üstte
+        gr.Markdown("""
+        ---
+        ### 🎤 Nasıl Kullanılır? | How to Use?
+        1. **Ses dosyanızı yükleyin** (veya mikrofon ile kaydedin) | Upload your audio file (or record with microphone)
+        2. **Model ve dil seçeneklerini ayarlayın** | Configure model and language options
+        3. **"Transkribe Et" butonuna basın** | Click "Transcribe" button
+        4. **Sonucu görüntüleyin ve indirin** | View and download the result
+        ---
         """)
 
         with gr.Row():
             with gr.Column(scale=1):
-                gr.Markdown("### 📤 Ses Dosyası Yükle")
+                gr.Markdown("### 📤 Ses Dosyası Yükle | Upload Audio File")
 
                 audio_input = gr.Audio(
-                    label="Ses Dosyası",
+                    label="Ses Dosyası | Audio File",
                     type="filepath",
                     sources=["upload", "microphone"],
                 )
 
-                gr.Markdown("### ⚙️ Ayarlar")
+                gr.Markdown("### ⚙️ Ayarlar | Settings")
 
                 model_dropdown = gr.Dropdown(
                     choices=[
@@ -251,56 +273,56 @@ def create_ui():
                     ],
                     value="small",
                     label="Model",
-                    info="Türkçe için en az 'small' model önerilir (daha iyi noktalama)"
+                    info="Türkçe için 'small' önerilir | 'small' recommended for Turkish"
                 )
 
                 language_dropdown = gr.Dropdown(
                     choices=[
-                        "auto (Otomatik Algıla)",
-                        "tr (Türkçe)",
-                        "en (İngilizce)",
-                        "de (Almanca)",
-                        "fr (Fransızca)",
-                        "es (İspanyolca)",
-                        "it (İtalyanca)",
-                        "ar (Arapça)",
-                        "ru (Rusça)",
-                        "zh (Çince)",
+                        "auto (Otomatik Algıla | Auto Detect)",
+                        "tr (Türkçe | Turkish)",
+                        "en (İngilizce | English)",
+                        "de (Almanca | German)",
+                        "fr (Fransızca | French)",
+                        "es (İspanyolca | Spanish)",
+                        "it (İtalyanca | Italian)",
+                        "ar (Arapça | Arabic)",
+                        "ru (Rusça | Russian)",
+                        "zh (Çince | Chinese)",
                     ],
-                    value="auto (Otomatik Algıla)",
-                    label="Dil",
-                    info="Varsayılan: Otomatik algılama"
+                    value="auto (Otomatik Algıla | Auto Detect)",
+                    label="Dil | Language",
+                    info="Varsayılan: Otomatik | Default: Auto detection"
                 )
 
                 device_dropdown = gr.Dropdown(
                     choices=["cuda (GPU)", "cpu (CPU)"],
                     value="cuda (GPU)",
-                    label="İşlemci",
-                    info="GPU varsa 5-10x daha hızlı"
+                    label="İşlemci | Processor",
+                    info="GPU 5-10x daha hızlı | GPU is 5-10x faster"
                 )
 
                 output_format_dropdown = gr.Dropdown(
                     choices=[
                         "Text (.txt)",
                         "JSON (.json)",
-                        "Altyazı (.srt)",
+                        "Altyazı | Subtitle (.srt)",
                     ],
                     value="Text (.txt)",
-                    label="Çıktı Formatı",
-                    info="İndirilecek dosya formatı"
+                    label="Çıktı Formatı | Output Format",
+                    info="İndirilecek dosya formatı | Download file format"
                 )
                 
-                gr.Markdown("### 🤖 Gemini AI İyileştirme (Opsiyonel)")
+                gr.Markdown("### 🤖 Gemini AI İyileştirme | Enhancement (Opsiyonel | Optional)")
                 
                 gemini_checkbox = gr.Checkbox(
-                    label="Gemini ile Metin İyileştir",
+                    label="Gemini ile Metin İyileştir | Enhance with Gemini",
                     value=False,
-                    info="Noktalama, dilbilgisi ve akıcılık iyileştirmesi"
+                    info="Noktalama ve dilbilgisi | Punctuation & grammar"
                 )
                 
                 gemini_api_key_input = gr.Textbox(
-                    label="Gemini API Anahtarı",
-                    placeholder="API anahtarınızı buraya girin (veya GEMINI_API_KEY ortam değişkeni)",
+                    label="Gemini API Anahtarı | Gemini API Key",
+                    placeholder="API anahtarınızı buraya girin | Enter your API key",
                     type="password",
                     visible=False
                 )
@@ -316,65 +338,57 @@ def create_ui():
                 )
 
                 transcribe_btn = gr.Button(
-                    "🚀 Transkribe Et",
+                    "🚀 Transkribe Et | Transcribe",
                     variant="primary",
                     size="lg"
                 )
 
             with gr.Column(scale=1):
-                gr.Markdown("### 📝 Transkripsiyon Sonucu")
+                gr.Markdown("### 📝 Transkripsiyon Sonucu | Transcription Result")
 
                 status_output = gr.Markdown(
-                    value="⏳ Ses dosyası yükleyip 'Transkribe Et' butonuna basın...",
+                    value="⏳ Ses dosyası yükleyin ve 'Transkribe Et' butonuna basın | Upload audio and click 'Transcribe' button...",
                 )
 
                 text_output = gr.Textbox(
-                    label="Metin",
+                    label="Metin | Text",
                     lines=15,
-                    placeholder="Transkripsiyon burada görünecek...",
+                    placeholder="Transkripsiyon burada görünecek... | Transcription will appear here...",
                     show_copy_button=True,
                 )
 
                 file_output = gr.File(
-                    label="💾 Dosyayı İndir",
+                    label="💾 Dosyayı İndir | Download File",
                 )
 
         gr.Markdown("""
         ---
-        ### 📊 Model Karşılaştırması
+        ### 📊 Model Karşılaştırması | Model Comparison
 
-        | Model | Hız | Kalite | GPU Bellek | Kullanım |
+        | Model | Hız\|Speed | Kalite\|Quality | GPU Bellek\|VRAM | Kullanım\|Usage |
         |-------|-----|--------|------------|----------|
-        | tiny | ⚡⚡⚡⚡⚡ | ⭐⭐ | ~1GB | Hızlı test |
-        | base | ⚡⚡⚡⚡ | ⭐⭐⭐ | ~1GB | Günlük kullanım |
-        | small | ⚡⚡⭐ | ⭐⭐⭐⭐ | ~2GB | İyi kalite |
-        | medium | ⚡⚡ | ⭐⭐⭐⭐⭐ | ~5GB | Yüksek kalite |
-        | large-v3 | ⚡ | ⭐⭐⭐⭐⭐ | ~10GB | En iyi kalite |
-        | turbo | ⚡⚡⚡⚡ | ⭐⭐⭐⭐⭐ | ~6GB | Optimize edilmiş (large-v3) |
+        | tiny | ⚡⚡⚡⚡⚡ | ⭐⭐ | ~1GB | Hızlı test\|Quick test |
+        | base | ⚡⚡⚡⚡ | ⭐⭐⭐ | ~1GB | Günlük\|Daily use |
+        | small | ⚡⚡⭐ | ⭐⭐⭐⭐ | ~2GB | İyi kalite\|Good quality |
+        | medium | ⚡⚡ | ⭐⭐⭐⭐⭐ | ~5GB | Yüksek\|High quality |
+        | large-v3 | ⚡ | ⭐⭐⭐⭐⭐ | ~10GB | En iyi\|Best quality |
+        | turbo | ⚡⚡⚡⚡ | ⭐⭐⭐⭐⭐ | ~6GB | Optimize\|Optimized |
 
-        ### 💡 İpuçları
-        - **İlk kullanımda** model indirilecektir, biraz zaman alabilir
-        - **GPU yoksa** CPU modunu seçin (daha yavaş ama çalışır)
-        - **Bellek hatası** alırsanız daha küçük model deneyin
-        - **Otomatik dil algılama** çoğu durumda iyi çalışır
-        - **turbo modeli** large-v3'ün optimize edilmiş versiyonudur (8x daha hızlı)
-        - **Türkçe için** en az 'small' model kullanın (daha iyi noktalama ve dilbilgisi)
-        - **Dili manuel seçin** (tr) otomatik algılama yerine daha iyi sonuç için
+        ### 💡 İpuçları | Tips
+        - **İlk kullanımda** model indirilir | Model downloads on first use
+        - **GPU yoksa** CPU modunu seçin | Choose CPU if no GPU
+        - **Bellek hatası** için küçük model | Use smaller model for memory errors
+        - **turbo modeli** 8x daha hızlı | turbo is 8x faster
+        - **Türkçe için** 'small' veya üstü | Use 'small' or above for Turkish
         
-        ### 🤖 Gemini İyileştirme
-        - **Gemini API** transkripsiyon sonrası metni akıcılaştırır ve düzeltir
-        - **API anahtarı** için: https://makersuite.google.com/app/apikey
-        - **GEMINI_API_KEY** ortam değişkeni ayarlarsanız her seferinde girmek zorunda kalmazsınız
-        - Gemini kullanımı **opsiyonel**dir, checkbox'ı işaretlemeyin normal transkripsiyon için
+        ### 🤖 Gemini İyileştirme | Gemini Enhancement
+        - Metni akıcılaştırır ve düzeltir | Improves fluency and corrects text
+        - API anahtarı | API key: https://makersuite.google.com/app/apikey
+        - Opsiyonel özellik | Optional feature
 
-        ### ⚡ GPU Optimizasyonları (Otomatik Aktif)
-        - **TF32 desteği** - Ampere+ GPU'larda %20 daha hızlı
-        - **float16 precision** - Bellek kullanımını yarıya indirir
-        - **CUDA cache** - Model yeniden yüklemeyi önler
-
-        ### 🎯 Desteklenen Formatlar
-        - **Ses:** MP3, WAV, M4A, FLAC, OGG
-        - **Çıktı:** TXT (düz metin), JSON (detaylı), SRT (altyazı)
+        ### 🎯 Desteklenen Formatlar | Supported Formats
+        - **Ses\|Audio:** MP3, WAV, M4A, FLAC, OGG
+        - **Çıktı\|Output:** TXT, JSON, SRT (altyazı\|subtitle)
         """)
 
         # Event handler
@@ -411,15 +425,6 @@ def create_ui():
             outputs=[text_output, file_output, status_output],
         )
 
-        # Örnek sesler (opsiyonel)
-        gr.Markdown("""
-        ---
-        ### 🎤 Nasıl Kullanılır?
-        1. Ses dosyanızı yükleyin (veya mikrofon ile kaydedin)
-        2. Model ve dil seçeneklerini ayarlayın
-        3. "Transkribe Et" butonuna basın
-        4. Sonucu görüntüleyin ve indirin
-        """)
 
     return demo
 
@@ -452,6 +457,7 @@ def main():
         share=False,               # Genel paylaşım kapalı
         inbrowser=True,            # Tarayıcıda otomatik aç
         show_error=True,           # Hataları göster
+        show_api=False,            # API dokümantasyonunu gizle
     )
 
 
