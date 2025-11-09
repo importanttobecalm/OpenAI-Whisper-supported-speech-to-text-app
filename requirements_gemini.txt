@@ -1,0 +1,2 @@
+# Gemini API Integration
+google-generativeai>=0.3.0

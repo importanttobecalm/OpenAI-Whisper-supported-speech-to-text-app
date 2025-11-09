@@ -46,8 +46,10 @@ temp/
 *.flac
 *.ogg
 *.json
-*.txt
 *.srt
+
+# Allow requirements files
+!requirements*.txt
 
 # Logs
 *.log
@@ -72,10 +74,11 @@ htmlcov/
 # Claude files
 .claude/
 
-# Markdown files (except README)
+# Markdown files (except README and CONTRIBUTING)
 *.md
 !README*.md
 !**/README*.md
+!CONTRIBUTING.md
 
 # Temporary and build files
 setup_app.py
